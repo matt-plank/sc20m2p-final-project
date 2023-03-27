@@ -26,9 +26,9 @@ def create_model() -> models.Sequential:
     return model
 
 
-def load_image():
+def load_image(image_path: str) -> np.ndarray():
     """Load an image."""
-    img = load_img("testImage.jpeg")
+    img = load_img(image_path)
     img = img_to_array(img)
     img = resize(img, (128, 128))
 
@@ -38,7 +38,7 @@ def load_image():
 def main():
     # Train the model created by create_model() to re-create the image loaded by load_image()
     model = create_model()
-    img = load_image()
+    img = load_image("testImage.jpeg")
     img = resize(img, (128, 128))
     img = img / 255.0
     img = np.expand_dims(img, axis=0)
