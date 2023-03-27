@@ -26,6 +26,7 @@ def create_model() -> tuple[models.Sequential, models.Sequential, models.Sequent
         layers.Dense(256, activation="relu"),
         layers.Dense(128, activation="relu"),
         layers.Dense(64, activation="relu"),
+        layers.Dense(32, activation="relu"),
     ]
 
     # Re-create the image
