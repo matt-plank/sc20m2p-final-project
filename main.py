@@ -60,7 +60,6 @@ def load_image(image_path: str, expand: bool = False) -> np.ndarray:
 
 def load_images() -> np.ndarray:
     """Load images from a directory."""
-    # Array called image_paths that uses glob to find all images in the directory "trainingImages/"
     image_paths = glob.glob("trainingImages/*")
 
     images = []
@@ -68,6 +67,15 @@ def load_images() -> np.ndarray:
     for image_path in image_paths:
         img = load_image(image_path)
         images.append(img)
+        images.append(np.flip(img, axis=0))
+        images.append(np.flip(img, axis=1))
+
+        for _ in range(3):
+            img = np.rot90(img)
+
+            images.append(img)
+            images.append(np.flip(img, axis=0))
+            images.append(np.flip(img, axis=1))
 
     return np.array(images)
 
@@ -81,7 +89,12 @@ def main():
 
     # Create the model
     model, encoder, decoder = create_model()
-    model.fit(training_images, training_images, epochs=10, batch_size=1)
+
+    try:
+        model.load_weights("model.h5")
+    except OSError:
+        model.fit(training_images, training_images, epochs=5, batch_size=1)
+        model.save("model.h5")
 
     # Encode the images
     encoded = encoder.predict(img_1)
@@ -90,7 +103,7 @@ def main():
     combined = (encoded + encoded_combine) / 2
 
     # Decode the combined images
-    result = decoder.predict(combined)
+    result = decoder.predict(encoded)
 
     # Plot decoded as an image
     plt.imshow(result[0])
