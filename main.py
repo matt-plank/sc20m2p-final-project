@@ -18,6 +18,14 @@ def create_model() -> models.Sequential:
     model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Flatten())
     model.add(layers.Dropout(0.5))
+
+    model.add(layers.Dense(1024, activation="relu"))
+    model.add(layers.Dense(512, activation="relu"))
+    model.add(layers.Dense(256, activation="relu"))
+    model.add(layers.Dense(128, activation="relu"))
+    model.add(layers.Dense(64, activation="relu"))
+
+    model.add(layers.Dense(256, activation="relu"))
     model.add(layers.Dense(512, activation="relu"))
     model.add(layers.Dense(128 * 128 * 3, activation="sigmoid"))
     model.add(layers.Reshape((128, 128, 3)))
@@ -26,7 +34,7 @@ def create_model() -> models.Sequential:
     return model
 
 
-def load_image(image_path: str) -> np.ndarray():
+def load_image(image_path: str) -> np.ndarray:
     """Load an image."""
     img = load_img(image_path)
     img = img_to_array(img)
