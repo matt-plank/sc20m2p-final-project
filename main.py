@@ -103,7 +103,7 @@ def main():
     combined = (encoded + encoded_combine) / 2
 
     # Decode the combined images
-    result = decoder.predict(encoded)
+    result = decoder.predict(combined)
 
     # Plot decoded as an image
     plt.imshow(result[0])
