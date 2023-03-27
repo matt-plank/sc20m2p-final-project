@@ -58,7 +58,6 @@ def load_image(image_path: str, expand: bool = False) -> np.ndarray:
     return img
 
 
-# Use load_image() to load images from "trainingImages/" and return as a numpy array
 def load_images() -> np.ndarray:
     """Load images from a directory."""
     # Array called image_paths that uses glob to find all images in the directory "trainingImages/"
@@ -73,7 +72,6 @@ def load_images() -> np.ndarray:
     return np.array(images)
 
 
-# Train the model from create_model() to create "testImage.jpeg"
 def main():
     # Load the images
     img_1 = load_image("trainingImages/testImage.jpeg", expand=True)
