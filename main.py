@@ -112,10 +112,30 @@ def main():
     combined = encoded * 0.5 + encoded_combine * 0.5
 
     # Decode the combined images
-    result = decoder.predict(combined)
+    decoded = decoder.predict(encoded)
+    decoded_combine = decoder.predict(encoded_combine)
+    decoded_result = decoder.predict(combined)
+
+    # Create a matplotlib figure with two rows, 2 subplots on first row, 3 on second row
+    fig, axes = plt.subplots(2, 3)
+
+    axes[0, 2].axis("off")
+
+    # Show original images
+    axes[0, 0].imshow(img_1[0])
+    axes[0, 1].imshow(img_2[0])
+    axes[1, 0].imshow(decoded[0])
+    axes[1, 1].imshow(decoded_combine[0])
+    axes[1, 2].imshow(decoded_result[0])
+
+    # Title each subplot
+    axes[0, 0].set_title("Original A")
+    axes[0, 1].set_title("Original B")
+    axes[1, 0].set_title("Decoded A")
+    axes[1, 1].set_title("Decoded B")
+    axes[1, 2].set_title("Decoded Combined")
 
     # Plot decoded as an image
-    plt.imshow(result[0])
     plt.show()
 
 
