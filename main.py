@@ -109,7 +109,7 @@ def main():
     encoded = encoder.predict(img_1)
     encoded_combine = encoder.predict(img_2)
 
-    combined = encoded * 0.5 + encoded_combine * 0.5
+    combined = encoded * 0.25 + encoded_combine * 0.75
 
     # Decode the combined images
     decoded = decoder.predict(encoded)
@@ -119,7 +119,9 @@ def main():
     # Create a matplotlib figure with two rows, 2 subplots on first row, 3 on second row
     fig, axes = plt.subplots(2, 3)
 
-    axes[0, 2].axis("off")
+    # Turn off axes for all subplots
+    for ax in axes.flat:
+        ax.axis("off")
 
     # Show original images
     axes[0, 0].imshow(img_1[0])
