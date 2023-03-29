@@ -25,10 +25,13 @@ def create_model() -> tuple[models.Sequential, models.Sequential, models.Sequent
         layers.MaxPooling2D((2, 2), padding="same"),
         layers.Flatten(),
         layers.Dense(128, activation="relu"),
+        layers.Dense(64, activation="relu"),
+        layers.Dense(32, activation="relu"),
     ]
 
     # Re-create the image
     decoder_layers = [
+        layers.Dense(128, activation="relu"),
         layers.Dense(256, activation="relu"),
         layers.Dense(512, activation="relu"),
         layers.Dense(32 * 32 * 3, activation="sigmoid"),
@@ -99,7 +102,7 @@ def main():
     try:
         model.load_weights("model.h5")
     except OSError:
-        model.fit(training_images, training_images, epochs=50, batch_size=32)
+        model.fit(training_images, training_images, epochs=100, batch_size=32)
         model.save("model.h5")
 
     # Encode the images
