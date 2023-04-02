@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 from transferEngine.images import ImageDataset
-from transferEngine.model import AutoEncoder, encode_and_combine, train_model
+from transferEngine.model import encode_and_combine, train_model
 
 MODEL_PATH: str = "model.tf"
 
