@@ -25,13 +25,14 @@ def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history)
     plt.tight_layout()
 
     # Top row in 3x3 grid
-    top_row = plt.subplot2grid((3, 3), (0, 0), colspan=3)
-    first_image = plt.subplot2grid((3, 3), (1, 0))
-    second_image = plt.subplot2grid((3, 3), (1, 1))
-    decoded_first_image = plt.subplot2grid((3, 3), (2, 0))
-    decoded_second_image = plt.subplot2grid((3, 3), (2, 1))
-    decoded_combined_image = plt.subplot2grid((3, 3), (2, 2))
-    empty_slot = plt.subplot2grid((3, 3), (1, 2))
+    top_row = plt.subplot2grid((4, 3), (0, 0), colspan=3)
+    blank_row = plt.subplot2grid((4, 3), (1, 0), colspan=3)
+    first_image = plt.subplot2grid((4, 3), (2, 0))
+    second_image = plt.subplot2grid((4, 3), (2, 1))
+    decoded_first_image = plt.subplot2grid((4, 3), (3, 0))
+    decoded_second_image = plt.subplot2grid((4, 3), (3, 1))
+    decoded_combined_image = plt.subplot2grid((4, 3), (3, 2))
+    empty_slot = plt.subplot2grid((4, 3), (2, 2))
 
     # Plot accuracy from training_history in the top row
     top_row.plot(training_history.history["accuracy"])
@@ -39,6 +40,7 @@ def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history)
 
     # Turn off axes for the middle row, last column
     empty_slot.axis("off")
+    blank_row.axis("off")
 
     # Show original images
     first_image.imshow(img_1[0])
