@@ -1,3 +1,8 @@
+"""The model module. Contains the model and functions to train and use it.
+
+Everything to do with the model is contained in this module.
+"""
+
 import numpy as np
 from keras import layers, models
 from keras.models import Model, load_model
@@ -6,6 +11,8 @@ from .images import ImageDataset
 
 
 class AutoEncoder(Model):
+    """An autoencoder model."""
+
     def __init__(self, input_shape):
         """Initialise the model with encoder and decoder layers."""
         super(AutoEncoder, self).__init__()
@@ -46,7 +53,12 @@ class AutoEncoder(Model):
 
 
 def train_or_load_model(path: str, dataset: ImageDataset) -> AutoEncoder:
-    """Train a model or load a model from a path."""
+    """If a model exists at the given path, load it. Otherwise, train a new model and save it to the path.
+
+    Args:
+        path: The path to the model.
+        dataset: The dataset to train the model on.
+    """
     try:
         model: AutoEncoder = load_model(path)  # type: ignore
     except OSError:
@@ -59,7 +71,14 @@ def train_or_load_model(path: str, dataset: ImageDataset) -> AutoEncoder:
 
 
 def encode_and_combine(img_1: np.ndarray, img_2: np.ndarray, model: AutoEncoder, alpha: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Encode and combine two images using a model."""
+    """Encode and combine two images using a model.
+
+    Args:
+        img_1: The first image to encode and combine.
+        img_2: The second image to encode and combine.
+        model: The model to use to encode and combine the images.
+        alpha: The split between the two images when combining.
+    """
     encoded_1: np.ndarray = model.encoder(img_1)  # type: ignore
     encoded_2: np.ndarray = model.encoder(img_2)  # type: ignore
 
