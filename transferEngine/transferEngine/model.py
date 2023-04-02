@@ -31,7 +31,6 @@ class AutoEncoder(Model):
                 layers.Flatten(),
                 layers.Dense(128, activation="relu"),
                 layers.Dense(64, activation="relu"),
-                layers.Dense(32, activation="relu"),
             ]
         )
 
@@ -52,22 +51,34 @@ class AutoEncoder(Model):
         return decoded
 
 
-def train_or_load_model(path: str, dataset: ImageDataset) -> AutoEncoder:
+def train_model(dataset: ImageDataset, split: float) -> tuple:
+    """Train a new model and return it.
+
+    Args:
+        dataset: The dataset to train the model on.
+        split: The validation split to use when training the model.
+    """
+    model: AutoEncoder = AutoEncoder((32, 32, 3))
+    model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
+    history = model.fit(dataset.image_matrix, dataset.image_matrix, validation_split=split, epochs=25, batch_size=32)
+    return model, history
+
+
+def train_or_load_model(path: str, dataset: ImageDataset, split: float) -> tuple:
     """If a model exists at the given path, load it. Otherwise, train a new model and save it to the path.
 
     Args:
         path: The path to the model.
         dataset: The dataset to train the model on.
     """
+    history = None
+
     try:
         model: AutoEncoder = load_model(path)  # type: ignore
     except OSError:
-        model: AutoEncoder = AutoEncoder((32, 32, 3))
-        model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
-        model.fit(dataset.image_matrix, dataset.image_matrix, epochs=100, batch_size=32)
-        model.save(path, save_format="tf")
+        model, history = train_model(dataset, split)
 
-    return model
+    return model, history
 
 
 def encode_and_combine(img_1: np.ndarray, img_2: np.ndarray, model: AutoEncoder, alpha: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
