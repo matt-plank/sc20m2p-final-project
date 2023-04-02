@@ -40,7 +40,7 @@ class AutoEncoder(Model):
                 layers.Dense(128, activation="relu"),
                 layers.Dense(256, activation="relu"),
                 layers.Dense(512, activation="relu"),
-                layers.Dense(32 * 32 * 3, activation="sigmoid"),
+                layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation="sigmoid"),
                 layers.Reshape(input_shape),
             ]
         )
