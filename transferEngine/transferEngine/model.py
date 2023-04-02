@@ -72,7 +72,7 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
     return model, history
 
 
-def train_or_load_model(path: str, dataset: ImageDataset, split: float) -> tuple:
+def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> tuple:
     """If a model exists at the given path, load it. Otherwise, train a new model and save it to the path.
 
     Args:
@@ -84,7 +84,7 @@ def train_or_load_model(path: str, dataset: ImageDataset, split: float) -> tuple
     try:
         model: AutoEncoder = load_model(path)  # type: ignore
     except OSError:
-        model, history = train_model(dataset, split)
+        model, history = train_model(dataset, split, epochs, batch_size)
 
     return model, history
 
