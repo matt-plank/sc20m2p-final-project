@@ -40,8 +40,8 @@ def main():
     model: AutoEncoder = train_or_load_model(MODEL_PATH, image_dataset)
 
     # Demonstrate on some example images
-    img_1 = np.expand_dims(image_dataset.images["trainingImages/testImage.jpeg"], axis=0)
-    img_2 = np.expand_dims(image_dataset.images["trainingImages/testCombine.jpg"], axis=0)
+    img_1 = image_dataset.images["trainingImages/testImage.jpeg"]
+    img_2 = image_dataset.images["trainingImages/testCombine.jpg"]
 
     decoded_1, decoded_2, decoded_combined = encode_and_combine(img_1, img_2, model, 0.5)
 

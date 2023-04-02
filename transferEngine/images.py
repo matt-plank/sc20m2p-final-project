@@ -38,7 +38,7 @@ class ImageDataset:
             img = load_image(image_path, target_size=target_size)
             images.append(img)
 
-            self.images[image_path] = img
+            self.images[image_path] = np.expand_dims(img, axis=0)
 
             if not augment:
                 continue
