@@ -181,3 +181,4 @@ pyrightconfig.json
 # TensorFlow Models and Datasets
 trainingImages/
 *.h5
+*.tf
