@@ -8,7 +8,16 @@ MODEL_PATH: str = "model.tf"
 
 
 def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history):
-    """Plot the results of the model."""
+    """Plot the results of the model.
+
+    Args:
+        img_1: The first image.
+        img_2: The second image.
+        decoded_1: The first decoded image.
+        decoded_2: The second decoded image.
+        decoded_combined: The combined decoded image.
+        training_history: The training history of the model.
+    """
     # Create a figure
     fig = plt.figure()
     plt.tight_layout()
