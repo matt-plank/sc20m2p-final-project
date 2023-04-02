@@ -4,6 +4,9 @@ from transferEngine.images import ImageDataset
 from transferEngine.model import encode_and_combine, train_model
 
 MODEL_PATH: str = "model.tf"
+MODEL_TRAINING_EPOCHS: int = 20
+MODEL_TRAINING_SPLIT: float = 0.2
+MODEL_TRAINING_BATCH_SIZE: int = 32
 
 
 def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history):
@@ -64,7 +67,12 @@ def main():
     image_dataset = ImageDataset("trainingImages")
     image_dataset.load_images((32, 32), augment=True)
 
-    model, training_history = train_model(image_dataset, 0.2)
+    model, training_history = train_model(
+        image_dataset,
+        MODEL_TRAINING_SPLIT,
+        epochs=MODEL_TRAINING_EPOCHS,
+        batch_size=MODEL_TRAINING_BATCH_SIZE,
+    )
 
     # Demonstrate on some example images
     img_1 = image_dataset.images["trainingImages/testImage.jpeg"]

@@ -51,7 +51,7 @@ class AutoEncoder(Model):
         return decoded
 
 
-def train_model(dataset: ImageDataset, split: float) -> tuple:
+def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> tuple:
     """Train a new model and return it.
 
     Args:
@@ -60,7 +60,15 @@ def train_model(dataset: ImageDataset, split: float) -> tuple:
     """
     model: AutoEncoder = AutoEncoder((32, 32, 3))
     model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
-    history = model.fit(dataset.image_matrix, dataset.image_matrix, validation_split=split, epochs=25, batch_size=32)
+
+    history = model.fit(
+        dataset.image_matrix,
+        dataset.image_matrix,
+        validation_split=split,
+        epochs=epochs,
+        batch_size=batch_size,
+    )
+
     return model, history
 
 
