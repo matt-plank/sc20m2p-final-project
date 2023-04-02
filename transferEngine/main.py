@@ -66,6 +66,9 @@ def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history)
 
 
 def main():
+    """The entry point of the program.
+
+    This function will load the images, train the model, and plot the results."""
     image_dataset = ImageDataset("trainingImages")
     image_dataset.load_images((32, 32), augment=True)
 
