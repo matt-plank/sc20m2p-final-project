@@ -4,13 +4,14 @@ Everything to do with images is contained in this module.
 """
 
 import glob
+from typing import Dict, Tuple
 
 import numpy as np
 from keras.utils import img_to_array, load_img
 from skimage.transform import resize
 
 
-def load_image(image_path: str, target_size: tuple[int, int], expand: bool = False) -> np.ndarray:
+def load_image(image_path: str, target_size: Tuple[int, int], expand: bool = False) -> np.ndarray:
     """Load an image into a numpy array.
 
     Args:
@@ -35,10 +36,10 @@ class ImageDataset:
     def __init__(self, path: str):
         """Create a new ImageDataset ready to load images from the given path."""
         self.path = path
-        self.images: dict = {}
+        self.images: Dict = {}
         self.image_matrix: np.ndarray | None = None
 
-    def load_images(self, target_size: tuple[int, int], augment: bool = False) -> None:
+    def load_images(self, target_size: Tuple[int, int], augment: bool = False) -> None:
         """Load images from the directory at self.path.
 
         Args:

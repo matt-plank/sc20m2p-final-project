@@ -4,7 +4,7 @@ from transferEngine.images import ImageDataset
 from transferEngine.model import encode_and_combine, train_model
 
 MODEL_PATH: str = "model.tf"
-MODEL_TRAINING_EPOCHS: int = 20
+MODEL_TRAINING_EPOCHS: int = 35
 MODEL_TRAINING_SPLIT: float = 0.2
 MODEL_TRAINING_BATCH_SIZE: int = 32
 

@@ -3,6 +3,8 @@
 Everything to do with the model is contained in this module.
 """
 
+from typing import Tuple
+
 import numpy as np
 from keras import layers, models
 from keras.models import Model, load_model
@@ -30,13 +32,11 @@ class AutoEncoder(Model):
                 layers.MaxPooling2D((2, 2), padding="same"),
                 layers.Flatten(),
                 layers.Dense(128, activation="relu"),
-                layers.Dense(64, activation="relu"),
             ]
         )
 
         self.decoder = models.Sequential(
             [
-                layers.Dense(128, activation="relu"),
                 layers.Dense(256, activation="relu"),
                 layers.Dense(512, activation="relu"),
                 layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation="sigmoid"),
@@ -89,7 +89,7 @@ def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: 
     return model, history
 
 
-def encode_and_combine(img_1: np.ndarray, img_2: np.ndarray, model: AutoEncoder, alpha: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def encode_and_combine(img_1: np.ndarray, img_2: np.ndarray, model: AutoEncoder, alpha: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Encode and combine two images using a model.
 
     Args:
