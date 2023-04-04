@@ -1,5 +1,5 @@
-# Uses the TensorFlow Docker image as a base and installs dependencies from requirements.txt
-# Creates an environment for training models
+# TensorFlow can be really hard to set up to work with a GPU on some devices
+# This Dockerfile makes that process a lot easier
 
 FROM tensorflow/tensorflow:latest-gpu
 
