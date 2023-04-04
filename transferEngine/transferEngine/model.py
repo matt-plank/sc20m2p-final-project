@@ -30,14 +30,17 @@ class AutoEncoder(Model):
                 layers.MaxPooling2D((2, 2), padding="same"),
                 layers.Conv2D(512, (3, 3), activation="relu", padding="same"),
                 layers.MaxPooling2D((2, 2), padding="same"),
-                layers.Flatten(),
-                layers.Dense(128, activation="relu"),
             ]
         )
 
         self.decoder = models.Sequential(
             [
-                layers.Dense(256, activation="relu"),
+                layers.Conv2DTranspose(512, (3, 3), activation="relu", padding="same"),
+                layers.Conv2DTranspose(256, (3, 3), activation="relu", padding="same"),
+                layers.Conv2DTranspose(128, (3, 3), activation="relu", padding="same"),
+                layers.Conv2DTranspose(64, (3, 3), activation="relu", padding="same"),
+                layers.Conv2DTranspose(32, (3, 3), activation="relu", padding="same"),
+                layers.Flatten(),
                 layers.Dense(512, activation="relu"),
                 layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation="sigmoid"),
                 layers.Reshape(input_shape),
@@ -58,7 +61,7 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
         dataset: The dataset to train the model on.
         split: The validation split to use when training the model.
     """
-    model: AutoEncoder = AutoEncoder((32, 32, 3))
+    model: AutoEncoder = AutoEncoder((128, 128, 3))
     model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
 
     history = model.fit(
