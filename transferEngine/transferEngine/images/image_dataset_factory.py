@@ -1,3 +1,9 @@
+"""Image dataset factory.
+
+This module contains functions for creating image datasets.
+All creation should be done through the functions in this module.
+"""
+
 import glob
 from typing import Tuple
 

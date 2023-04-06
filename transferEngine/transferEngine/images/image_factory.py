@@ -1,3 +1,9 @@
+"""Image factory module.
+
+This module contains a function for creating images.
+All creation of images should be done through this module.
+"""
+
 from typing import Tuple
 
 import numpy as np

@@ -1,3 +1,9 @@
+"""Model factory module.
+
+This module contains functions for training and loading models.
+All creation of models should be done through this module.
+"""
+
 from typing import Dict, Optional, Tuple
 
 import numpy as np
