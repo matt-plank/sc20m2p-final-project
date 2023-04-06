@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from transferEngine.images import image_dataset_factory
-from transferEngine.model import encode_and_combine, train_model
+from transferEngine.models import model_factory
 
 MODEL_PATH: str = "model.tf"
 MODEL_TRAINING_EPOCHS: int = 15
@@ -75,7 +75,7 @@ def main():
         target_size=(128, 128),
     )
 
-    model, training_history = train_model(
+    model, training_history = model_factory.train_model(
         image_dataset,
         MODEL_TRAINING_SPLIT,
         epochs=MODEL_TRAINING_EPOCHS,
@@ -86,7 +86,7 @@ def main():
     img_1 = image_dataset.images["trainingImages/testImage.jpeg"].wrapped_matrix
     img_2 = image_dataset.images["trainingImages/testCombine.jpg"].wrapped_matrix
 
-    decoded_1, decoded_2, decoded_combined = encode_and_combine(img_1, img_2, model, 0.5)
+    decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, 0.5)
 
     plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history)
 
