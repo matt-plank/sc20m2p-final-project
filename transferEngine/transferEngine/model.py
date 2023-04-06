@@ -60,13 +60,17 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
     Args:
         dataset: The dataset to train the model on.
         split: The validation split to use when training the model.
+        epochs: The number of epochs to train the model for.
+        batch_size: The batch size to use when training the model.
     """
     model: AutoEncoder = AutoEncoder((128, 128, 3))
     model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
 
+    image_matrix = dataset.images_as_matrix(augment=True)
+
     history = model.fit(
-        dataset.image_matrix,
-        dataset.image_matrix,
+        image_matrix,
+        image_matrix,
         validation_split=split,
         epochs=epochs,
         batch_size=batch_size,

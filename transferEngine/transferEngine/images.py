@@ -4,14 +4,45 @@ Everything to do with images is contained in this module.
 """
 
 import glob
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 from keras.utils import img_to_array, load_img
 from skimage.transform import resize
 
 
-def load_image(image_path: str, target_size: Tuple[int, int], expand: bool = False) -> np.ndarray:
+class Image:
+    """A class for handling operations on images."""
+
+    def __init__(self, matrix: np.ndarray) -> None:
+        """Create a new Image from a numpy array."""
+        self.matrix: np.ndarray = matrix
+
+    @property
+    def wrapped_matrix(self) -> np.ndarray:
+        """Wrap the image in an extra dimension (helpful for TensorFlow).)"""
+        return np.expand_dims(self.matrix, axis=0)
+
+    def flipped(self, axis: int) -> np.ndarray:
+        """Flip the image along the given axis."""
+        return np.flip(self.matrix, axis=axis)
+
+    def rotated(self, times: int) -> np.ndarray:
+        """Rotate the image a given number of times."""
+        img = self.matrix.copy()
+
+        for _ in range(times):
+            img = np.rot90(img)
+
+        return img
+
+    @property
+    def shape(self) -> Tuple[int, int, int]:
+        """Return the shape of the image."""
+        return self.matrix.shape
+
+
+def image_from_path(image_path: str, target_size: Tuple[int, int], expand: bool = False) -> Image:
     """Load an image into a numpy array.
 
     Args:
@@ -27,7 +58,7 @@ def load_image(image_path: str, target_size: Tuple[int, int], expand: bool = Fal
     if expand:
         img = np.expand_dims(img, axis=0)
 
-    return img
+    return Image(img)
 
 
 class ImageDataset:
@@ -36,8 +67,7 @@ class ImageDataset:
     def __init__(self, path: str):
         """Create a new ImageDataset ready to load images from the given path."""
         self.path = path
-        self.images: Dict = {}
-        self.image_matrix: np.ndarray | None = None
+        self.images: Dict[str, Image] = {}
 
     def load_images(self, target_size: Tuple[int, int], augment: bool = False) -> None:
         """Load images from the directory at self.path.
@@ -48,24 +78,27 @@ class ImageDataset:
         """
         image_paths = glob.glob(f"{self.path}/*")
 
-        images = []
-
         for image_path in image_paths:
-            img = load_image(image_path, target_size=target_size)
-            images.append(img)
+            img = image_from_path(image_path, target_size=target_size)
+            self.images[image_path] = img
 
-            self.images[image_path] = np.expand_dims(img, axis=0)
+    def images_as_matrix(self, augment: bool = False) -> np.ndarray:
+        """Return the images as a matrix.
+
+        Args:
+            augment: Whether to augment the images by flipping and rotating them.
+        """
+        result: List[np.ndarray] = []
+
+        for image in self.images.values():
+            result.append(image.matrix)
 
             if not augment:
                 continue
 
-            images.append(np.flip(img, axis=0))
+            result.append(image.flipped(axis=0))
 
-            for _ in range(3):
-                img = np.rot90(img)
+            for i in range(3):
+                result.append(image.rotated(times=i))
 
-                images.append(img)
-                images.append(np.flip(img, axis=0))
-                images.append(np.flip(img, axis=1))
-
-        self.image_matrix = np.array(images)
+        return np.array(result)

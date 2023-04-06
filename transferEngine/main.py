@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from transferEngine.images import ImageDataset
+from transferEngine.images import Image, ImageDataset
 from transferEngine.model import encode_and_combine, train_model
 
 MODEL_PATH: str = "model.tf"
@@ -81,8 +81,8 @@ def main():
     )
 
     # Demonstrate on some example images
-    img_1 = image_dataset.images["trainingImages/testImage.jpeg"]
-    img_2 = image_dataset.images["trainingImages/testCombine.jpg"]
+    img_1 = image_dataset.images["trainingImages/testImage.jpeg"].wrapped_matrix
+    img_2 = image_dataset.images["trainingImages/testCombine.jpg"].wrapped_matrix
 
     decoded_1, decoded_2, decoded_combined = encode_and_combine(img_1, img_2, model, 0.5)
 
