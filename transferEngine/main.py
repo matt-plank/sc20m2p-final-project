@@ -76,7 +76,7 @@ def main():
     )
 
     model, training_history = model_factory.train_model(
-        image_dataset,
+        image_dataset.images_as_matrix(),
         MODEL_TRAINING_SPLIT,
         epochs=MODEL_TRAINING_EPOCHS,
         batch_size=MODEL_TRAINING_BATCH_SIZE,

@@ -1,10 +1,12 @@
 from typing import Dict, Optional, Tuple
 
-from ..images.image_dataset import ImageDataset
+import numpy as np
+from keras.models import load_model
+
 from .model import AutoEncoder
 
 
-def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Dict]:
+def train_model(image_matrix: np.ndarray, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Dict]:
     """Train a new model and return it.
 
     Args:
@@ -15,8 +17,6 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
     """
     model: AutoEncoder = AutoEncoder((128, 128, 3))
     model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
-
-    image_matrix = dataset.images_as_matrix(augment=True)
 
     history = model.fit(
         image_matrix,
@@ -29,7 +29,7 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
     return model, history
 
 
-def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Optional[Dict]]:
+def train_or_load_model(path: str, image_matrix: np.ndarray, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Optional[Dict]]:
     """If a model exists at the given path, load it. Otherwise, train a new model and save it to the path.
 
     Args:
@@ -41,6 +41,6 @@ def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: 
     try:
         model: AutoEncoder = load_model(path)  # type: ignore
     except OSError:
-        model, history = train_model(dataset, split, epochs, batch_size)
+        model, history = train_model(image_matrix, split, epochs, batch_size)
 
     return model, history
