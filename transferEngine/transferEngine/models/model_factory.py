@@ -1,8 +1,10 @@
+from typing import Dict, Optional, Tuple
+
 from ..images.image_dataset import ImageDataset
 from .model import AutoEncoder
 
 
-def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> tuple:
+def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Dict]:
     """Train a new model and return it.
 
     Args:
@@ -27,7 +29,7 @@ def train_model(dataset: ImageDataset, split: float, epochs: int, batch_size: in
     return model, history
 
 
-def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> tuple:
+def train_or_load_model(path: str, dataset: ImageDataset, split: float, epochs: int, batch_size: int) -> Tuple[AutoEncoder, Optional[Dict]]:
     """If a model exists at the given path, load it. Otherwise, train a new model and save it to the path.
 
     Args:
