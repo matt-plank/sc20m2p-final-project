@@ -9,7 +9,7 @@ import numpy as np
 from keras import layers, models
 from keras.models import Model, load_model
 
-from .images import ImageDataset
+from .images.image_dataset import ImageDataset
 
 
 class AutoEncoder(Model):

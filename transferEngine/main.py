@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from transferEngine.images import Image, ImageDataset
+from transferEngine.images import image_dataset_factory
 from transferEngine.model import encode_and_combine, train_model
 
 MODEL_PATH: str = "model.tf"
@@ -70,8 +70,10 @@ def main():
 
     This function will load the images, train the model, and plot the results.
     """
-    image_dataset = ImageDataset("trainingImages")
-    image_dataset.load_images((128, 128), augment=True)
+    image_dataset = image_dataset_factory.dataset_from_path(
+        "trainingImages",
+        target_size=(128, 128),
+    )
 
     model, training_history = train_model(
         image_dataset,
