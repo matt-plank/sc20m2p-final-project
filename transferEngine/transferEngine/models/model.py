@@ -13,7 +13,8 @@ class AutoEncoder(Model):
         super(AutoEncoder, self).__init__()
         self.encoder = models.Sequential(
             [
-                layers.Conv2D(32, (3, 3), activation="relu", padding="same", input_shape=input_shape),
+                layers.BatchNormalization(input_shape=input_shape),
+                layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
                 layers.MaxPooling2D((2, 2), padding="same"),
                 layers.Conv2D(64, (3, 3), activation="relu", padding="same"),
                 layers.MaxPooling2D((2, 2), padding="same"),
@@ -23,18 +24,20 @@ class AutoEncoder(Model):
                 layers.MaxPooling2D((2, 2), padding="same"),
                 layers.Conv2D(512, (3, 3), activation="relu", padding="same"),
                 layers.MaxPooling2D((2, 2), padding="same"),
+                layers.Flatten(),
+                layers.Dense(2048, activation="relu"),
+                layers.Dropout(0.5),
+                layers.Dense(1024, activation="relu"),
             ]
         )
 
         self.decoder = models.Sequential(
             [
-                layers.Conv2DTranspose(512, (3, 3), activation="relu", padding="same"),
-                layers.Conv2DTranspose(256, (3, 3), activation="relu", padding="same"),
-                layers.Conv2DTranspose(128, (3, 3), activation="relu", padding="same"),
-                layers.Conv2DTranspose(64, (3, 3), activation="relu", padding="same"),
-                layers.Conv2DTranspose(32, (3, 3), activation="relu", padding="same"),
-                layers.Flatten(),
-                layers.Dense(512, activation="relu"),
+                layers.Dropout(0.5),
+                layers.Dense(2048, activation="relu"),
+                layers.Dropout(0.5),
+                layers.Dense(4096, activation="relu"),
+                layers.Dropout(0.5),
                 layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation="sigmoid"),
                 layers.Reshape(input_shape),
             ]
@@ -57,7 +60,7 @@ class AutoEncoder(Model):
         encoded_1: np.ndarray = self.encoder(img_1)  # type: ignore
         encoded_2: np.ndarray = self.encoder(img_2)  # type: ignore
 
-        combined = encoded_1 * alpha + encoded_2 * (1 - alpha)
+        combined = encoded_1 * alpha + encoded_2 * (1 - alpha)  # type: ignore
 
         decoded_1: np.ndarray = self.decoder(encoded_1)  # type: ignore
         decoded_2: np.ndarray = self.decoder(encoded_2)  # type: ignore

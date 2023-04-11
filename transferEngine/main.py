@@ -1,12 +1,15 @@
+from typing import Tuple
+
 import matplotlib.pyplot as plt
 
 from transferEngine.images import image_dataset_factory
 from transferEngine.models import model_factory
 
 MODEL_PATH: str = "model.tf"
-MODEL_TRAINING_EPOCHS: int = 15
+MODEL_TRAINING_EPOCHS: int = 200
 MODEL_TRAINING_SPLIT: float = 0.2
-MODEL_TRAINING_BATCH_SIZE: int = 32
+MODEL_TRAINING_BATCH_SIZE: int = 16
+IMAGE_SHAPE: Tuple[int, int, int] = (28, 28, 3)
 
 
 def plot(img_1, img_2, decoded_1, decoded_2, decoded_combined, training_history):
@@ -72,10 +75,11 @@ def main():
     """
     image_dataset = image_dataset_factory.dataset_from_path(
         "trainingImages",
-        target_size=(128, 128),
+        target_size=IMAGE_SHAPE[:2],
     )
 
-    model, training_history = model_factory.train_model(
+    model, training_history = model_factory.create_and_train_model(
+        IMAGE_SHAPE,
         image_dataset.images_as_matrix(),
         MODEL_TRAINING_SPLIT,
         epochs=MODEL_TRAINING_EPOCHS,
