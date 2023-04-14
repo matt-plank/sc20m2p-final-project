@@ -8,7 +8,7 @@ from transferEngine.images import image_dataset_factory
 from transferEngine.models import model_factory
 
 MODEL_PATH: str = "model.tf"
-MODEL_TRAINING_EPOCHS: int = 200
+MODEL_TRAINING_EPOCHS: int = 120
 MODEL_TRAINING_SPLIT: float = 0.2
 MODEL_TRAINING_BATCH_SIZE: int = 16
 IMAGE_SHAPE: Tuple[int, int, int] = (28, 28, 3)
@@ -63,7 +63,7 @@ def plot_training_history(training_history) -> Figure:
     # Create a new figure
     fig = plt.figure(figsize=(10, 5))
 
-    ax1 = fig.add_subplot(111)
+    ax1 = fig.add_subplot(111)  # type: ignore
     ax1.plot(training_history.history["accuracy"])
     ax1.plot(training_history.history["val_accuracy"])
     ax1.set_title("Model Accuracy")
