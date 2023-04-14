@@ -1,17 +1,12 @@
+import argparse
+import logging
 from typing import Any, Tuple
 
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from transferEngine.images import image_dataset_factory
+from transferEngine.images import image_dataset_factory, image_factory
 from transferEngine.models import model_factory
-
-MODEL_PATH: str = "model.tf"
-MODEL_TRAINING_EPOCHS: int = 120
-MODEL_TRAINING_SPLIT: float = 0.2
-MODEL_TRAINING_BATCH_SIZE: int = 16
-IMAGE_SHAPE: Tuple[int, int, int] = (28, 28, 3)
 
 
 def plot_image_results(img_1, img_2, decoded_1, decoded_2, combined) -> Figure:
@@ -79,28 +74,54 @@ def main():
 
     This function will load the images, train the model, and plot the results.
     """
+    # Set up logging & create a new logger
+    logging.basicConfig(
+        format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+        level=logging.INFO,
+    )
+    logger = logging.getLogger("Main")
+
+    # Get command line args
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--epochs", type=int, required=True)
+    parser.add_argument("--split", type=float, required=True)
+    parser.add_argument("--batch-size", type=int, required=True)
+    parser.add_argument("--dataset-path", type=str, required=True)
+    parser.add_argument("--target-shape", type=int, nargs=3, required=True)
+    parser.add_argument("--model-path", type=str, required=True)
+    args = parser.parse_args()
+
+    IMAGE_SHAPE: Tuple[int, int, int] = tuple(args.target_shape)
+
+    # Load the images
+    logger.info("Loading images...")
     image_dataset = image_dataset_factory.dataset_from_path(
-        "trainingImages",
+        args.dataset_path,
         target_size=IMAGE_SHAPE[:2],
+        verbose=True,
     )
 
+    # Train the model
+    logger.info("Training model...")
     model, training_history = model_factory.create_and_train_model(
         IMAGE_SHAPE,
         image_dataset.images_as_matrix(),
-        MODEL_TRAINING_SPLIT,
-        epochs=MODEL_TRAINING_EPOCHS,
-        batch_size=MODEL_TRAINING_BATCH_SIZE,
+        args.split,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
     )
 
     # Demonstrate on some example images
-    img_1 = image_dataset.images["trainingImages/testImage.jpeg"].wrapped_matrix
-    img_2 = image_dataset.images["trainingImages/testCombine.jpg"].wrapped_matrix
+    logger.info("Demonstrating on example images...")
+    img_1 = image_factory.image_from_path("exampleImages/testImage.jpeg", IMAGE_SHAPE[:2]).wrapped_matrix
+    img_2 = image_factory.image_from_path("exampleImages/testCombine.jpg", IMAGE_SHAPE[:2]).wrapped_matrix
 
     decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, 0.5)
 
     # Create and save plots of the results
-    plot_image_results(img_1[0], img_2[0], decoded_1[0], decoded_2[0], decoded_combined[0]).savefig("model.tf/results.png")
-    plot_training_history(training_history).savefig("model.tf/accuracy.png")
+    logger.info("Saving results...")
+    plot_image_results(img_1[0], img_2[0], decoded_1[0], decoded_2[0], decoded_combined[0]).savefig(f"{args.model_path}/results.png")
+    plot_training_history(training_history).savefig(f"{args.model_path}/accuracy.png")
 
 
 if __name__ == "__main__":

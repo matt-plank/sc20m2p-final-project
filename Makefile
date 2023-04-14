@@ -11,7 +11,13 @@ train.run:
 		-it \
 		-v ${PWD}/transferEngine:/transferEngine \
 		transfer \
-		python main.py
+		python train_model.py \
+			--epochs 100 \
+			--split 0.2 \
+			--batch-size 32 \
+			--dataset-path "trainingImages/Famous paintings" \
+			--target-shape 28 28 3 \
+			--model-path model.tf
 
 train:
 	# Build the docker image and run the training script
