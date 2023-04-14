@@ -14,8 +14,8 @@ train.run:
 		python train_model.py \
 			--epochs 100 \
 			--split 0.2 \
-			--batch-size 32 \
-			--dataset-path "trainingImages/Famous paintings" \
+			--batch-size 16 \
+			--dataset-path trainingImages/ \
 			--target-shape 28 28 3 \
 			--model-path model.tf
 

@@ -6,6 +6,7 @@ All creation should be done through the functions in this module.
 
 import glob
 import logging
+from pathlib import Path
 from typing import Tuple
 
 from . import image_factory
@@ -26,7 +27,9 @@ def dataset_from_path(path: str, target_size: Tuple[int, int], verbose: bool = F
 
     dataset = ImageDataset()
 
-    image_paths = glob.glob(f"{path}/*")
+    # Find images recursively so they can be stored in subfolders by search term
+    image_paths = glob.glob(f"{path}/**/*", recursive=True)
+    image_paths = [path for path in image_paths if Path.is_file(Path(path))]
 
     for i, image_path in enumerate(image_paths):
         if verbose:
