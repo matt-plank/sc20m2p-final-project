@@ -1,11 +1,13 @@
 import argparse
 import logging
+from pathlib import Path
 from typing import Any, Tuple
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from transferEngine.images import image_dataset_factory, image_factory
+from transferEngine.images.image_dataset import ImageDataset
 from transferEngine.models import model_factory
 
 
@@ -89,17 +91,25 @@ def main():
     parser.add_argument("--dataset-path", type=str, required=True)
     parser.add_argument("--target-shape", type=int, nargs=3, required=True)
     parser.add_argument("--model-path", type=str, required=True)
+    parser.add_argument("--dataset-save-path", type=str, required=True)
     args = parser.parse_args()
 
     IMAGE_SHAPE: Tuple[int, int, int] = tuple(args.target_shape)
 
-    # Load the images
-    logger.info("Loading images...")
-    image_dataset = image_dataset_factory.dataset_from_path(
-        args.dataset_path,
-        target_size=IMAGE_SHAPE[:2],
-        verbose=True,
-    )
+    # Check if the dataset already exists
+    dataset_path = Path(args.dataset_save_path)
+    image_dataset: ImageDataset
+    if dataset_path.exists():
+        logger.info("Dataset already exists, loading...")
+        image_dataset = image_dataset_factory.dataset_from_pickle(args.dataset_save_path)
+    else:
+        logger.info("Dataset does not exist, creating...")
+        image_dataset = image_dataset_factory.dataset_from_path(
+            args.dataset_path,
+            target_size=IMAGE_SHAPE[:2],
+            verbose=True,
+        )
+        image_dataset.save_to_pickle(args.dataset_save_path)
 
     # Train the model
     logger.info("Training model...")

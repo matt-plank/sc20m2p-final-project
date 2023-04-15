@@ -6,6 +6,7 @@ All creation should be done through the functions in this module.
 
 import glob
 import logging
+import pickle
 from pathlib import Path
 from typing import Tuple
 
@@ -39,3 +40,13 @@ def dataset_from_path(path: str, target_size: Tuple[int, int], verbose: bool = F
         dataset.images[image_path] = img
 
     return dataset
+
+
+def dataset_from_pickle(path: str) -> ImageDataset:
+    """Load an image dataset from a pickle file.
+
+    Args:
+        path: The path to the pickle file.
+    """
+    with open(path, "rb") as file:
+        return pickle.load(file)

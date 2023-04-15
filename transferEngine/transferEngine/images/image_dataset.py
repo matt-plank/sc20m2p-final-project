@@ -1,3 +1,4 @@
+import pickle
 from typing import Dict, List
 
 import numpy as np
@@ -32,3 +33,12 @@ class ImageDataset:
                 result.append(image.rotated(times=i))
 
         return np.array(result)
+
+    def save_to_pickle(self, path: str):
+        """Save the dataset to a file using pickle.
+
+        Args:
+            path: The path to save the dataset to.
+        """
+        with open(path, "wb") as file:
+            pickle.dump(self, file)
