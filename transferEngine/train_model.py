@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 import transferEngine.plotting as plotting
 from transferEngine.config import config_from_cli_or_yaml
