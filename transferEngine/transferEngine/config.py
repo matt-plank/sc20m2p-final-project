@@ -4,6 +4,44 @@ from typing import Dict
 import yaml
 
 
+def validate_config(config: Dict) -> None:
+    """Check that the config contains all required options."""
+    required_options = [
+        "epochs",
+        "split",
+        "batch_size",
+        "dataset_path",
+        "target_shape",
+        "model_path",
+        "dataset_save_path",
+    ]
+
+    for option in required_options:
+        if option not in config:
+            raise ValueError(f"Config missing required option: {option}")
+
+
+def config_from_yaml(path: str) -> Dict:
+    """Returns the training configuration for the model."""
+    with open(path, "r") as f:
+        config = yaml.safe_load(f)
+
+    return config
+
+
+def config_from_cli_args(args) -> Dict:
+    """Returns the training configuration for the model."""
+    return {
+        "epochs": args.epochs,
+        "split": args.split,
+        "batch_size": args.batch_size,
+        "dataset_path": args.dataset_path,
+        "target_shape": tuple(args.target_shape),
+        "model_path": args.model_path,
+        "dataset_save_path": args.dataset_save_path,
+    }
+
+
 def config_from_cli_or_yaml() -> Dict:
     """Returns the training configuration for the model.
 
@@ -43,18 +81,10 @@ def config_from_cli_or_yaml() -> Dict:
 
     # If a config file is provided, load it
     if args.config is not None:
-        with open(args.config, "r") as f:
-            config = yaml.safe_load(f)
+        config = config_from_yaml(args.config)
+    else:
+        config = config_from_cli_args(args)
 
-        return config
+    validate_config(config)
 
-    # Otherwise, return the command line arguments
-    return {
-        "epochs": args.epochs,
-        "split": args.split,
-        "batch_size": args.batch_size,
-        "dataset_path": args.dataset_path,
-        "target_shape": tuple(args.target_shape),
-        "model_path": args.model_path,
-        "dataset_save_path": args.dataset_save_path,
-    }
+    return config
