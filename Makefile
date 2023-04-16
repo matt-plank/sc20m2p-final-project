@@ -12,13 +12,7 @@ train.run:
 		-v ${PWD}/transferEngine:/transferEngine \
 		transfer \
 		python train_model.py \
-			--epochs 50 \
-			--split 0.2 \
-			--batch-size 512 \
-			--dataset-path trainingImages/ \
-			--target-shape 28 28 3 \
-			--model-path model.tf \
-			--dataset-save-path dataset.pickle
+			--config ./training-config.yaml
 
 train:
 	# Build the docker image and run the training script

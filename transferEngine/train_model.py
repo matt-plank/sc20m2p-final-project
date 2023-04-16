@@ -1,11 +1,11 @@
-import argparse
 import logging
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, Dict, Tuple
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
+from transferEngine.config import config_from_cli_or_yaml
 from transferEngine.images import image_dataset_factory, image_factory
 from transferEngine.images.image_dataset import ImageDataset
 from transferEngine.models import model_factory
@@ -83,42 +83,34 @@ def main():
     )
     logger = logging.getLogger("Main")
 
-    # Get command line args
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, required=True)
-    parser.add_argument("--split", type=float, required=True)
-    parser.add_argument("--batch-size", type=int, required=True)
-    parser.add_argument("--dataset-path", type=str, required=True)
-    parser.add_argument("--target-shape", type=int, nargs=3, required=True)
-    parser.add_argument("--model-path", type=str, required=True)
-    parser.add_argument("--dataset-save-path", type=str, required=True)
-    args = parser.parse_args()
+    # Get configuration
+    config: Dict = config_from_cli_or_yaml()
 
-    IMAGE_SHAPE: Tuple[int, int, int] = tuple(args.target_shape)
+    IMAGE_SHAPE: Tuple[int, int, int] = tuple(config["target_shape"])
 
     # Check if the dataset already exists
-    dataset_path = Path(args.dataset_save_path)
+    dataset_path = Path(config["dataset_save_path"])
     image_dataset: ImageDataset
     if dataset_path.exists():
         logger.info("Dataset already exists, loading...")
-        image_dataset = image_dataset_factory.dataset_from_pickle(args.dataset_save_path)
+        image_dataset = image_dataset_factory.dataset_from_pickle(config["dataset_save_path"])
     else:
         logger.info("Dataset does not exist, creating...")
         image_dataset = image_dataset_factory.dataset_from_path(
-            args.dataset_path,
+            config["dataset_path"],
             target_size=IMAGE_SHAPE[:2],
             verbose=True,
         )
-        image_dataset.save_to_pickle(args.dataset_save_path)
+        image_dataset.save_to_pickle(config["dataset_save_path"])
 
     # Train the model
     logger.info("Training model...")
     model, training_history = model_factory.create_and_train_model(
         IMAGE_SHAPE,
         image_dataset.images_as_matrix(),
-        args.split,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
+        config["split"],
+        epochs=config["epochs"],
+        batch_size=config["batch_size"],
     )
 
     # Demonstrate on some example images
@@ -130,8 +122,8 @@ def main():
 
     # Create and save plots of the results
     logger.info("Saving results...")
-    plot_image_results(img_1[0], img_2[0], decoded_1[0], decoded_2[0], decoded_combined[0]).savefig(f"{args.model_path}/results.png")
-    plot_training_history(training_history).savefig(f"{args.model_path}/accuracy.png")
+    plot_image_results(img_1[0], img_2[0], decoded_1[0], decoded_2[0], decoded_combined[0]).savefig(f"{config['model_path']}/results.png")
+    plot_training_history(training_history).savefig(f"{config['model_path']}/accuracy.png")
 
 
 if __name__ == "__main__":

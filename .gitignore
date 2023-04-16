@@ -185,3 +185,6 @@ trainingImages/
 
 # Pickled files
 *.pickle
+
+# Config files
+training-config.yaml
