@@ -5,62 +5,61 @@ from keras import layers, models
 from keras.models import Model
 
 
-class Encoder(Model):
-    def __init__(self, input_shape):
-        """Initialise the encoder model.
+def encoder(input_shape: Tuple[int, int, int], bottleneck_size: int) -> Model:
+    """Create a model for encoding images as a vector of size "bottleneck_size"."""
+    inputs = layers.Input(shape=input_shape)
 
-        Args:
-            input_shape: The shape of images the model will expect.
-        """
-        super(Encoder, self).__init__()
-        self.encode_details = models.Sequential(
-            [
-                layers.Input(shape=input_shape),
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.MaxPooling2D((2, 2), padding="same"),
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.MaxPooling2D((2, 2), padding="same"),
-                layers.Conv2D(64, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.MaxPooling2D((2, 2), padding="same"),
-                layers.Conv2D(128, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.MaxPooling2D((2, 2), padding="same"),
-                layers.Flatten(),
-                layers.Dense(1024, activation="LeakyReLU"),
-                layers.Dropout(0.5),
-            ]
-        )
+    # Main body of the processing
+    x = layers.Conv2D(16, (5, 5), activation="relu", padding="same")(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2), padding="same")(x)
+    x = layers.Conv2D(32, (5, 5), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2), padding="same")(x)
+    x = layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2), padding="same")(x)
+    x = layers.Conv2D(128, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2), padding="same")(x)
+    x = layers.Flatten()(x)
+    x = layers.Dense(1024, activation="LeakyReLU")(x)
+    x = layers.Dropout(0.5)(x)
 
-        self.skip = models.Sequential(
-            [
-                layers.Input(shape=input_shape),
-                layers.Flatten(),
-            ]
-        )
+    # Skip connection
+    skip = layers.Flatten()(inputs)
 
-        self.encoder = models.Sequential(
-            [
-                layers.Dense(1024, activation="LeakyReLU"),
-            ]
-        )
+    # Combine the main body and the skip connection
+    x = layers.concatenate([x, skip])
+    x = layers.Dense(bottleneck_size, activation="LeakyReLU")(x)
 
-    def call(self, x):
-        """Forward pass of the model.
+    return Model(inputs=inputs, outputs=x)
 
-        Args:
-            x: The input to the model.
 
-        Returns:
-            The encoded representation of the input.
-        """
-        processed = self.encode_details(x)
-        skipped = self.skip(x)
-        encoded = self.encoder(layers.concatenate([processed, skipped]))
+def decoder(bottleneck_size: int) -> Model:
+    """Create a model for decoding the bottleneck layer into an image."""
+    inputs = layers.Input(shape=(bottleneck_size,))
 
-        return encoded
+    # Main body of the processing
+    x = layers.Dense(1024, activation="LeakyReLU")(inputs)
+    x = layers.Dropout(0.5)(x)
+    x = layers.Reshape((8, 8, 16))(x)
+    x = layers.Conv2DTranspose(1024, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.UpSampling2D((2, 2))(x)
+    x = layers.Conv2DTranspose(512, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.UpSampling2D((2, 2))(x)
+    x = layers.Conv2DTranspose(256, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv2DTranspose(128, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv2DTranspose(64, (3, 3), activation="relu", padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.UpSampling2D((2, 2))(x)
+    x = layers.Conv2DTranspose(3, (3, 3), activation="sigmoid", padding="same")(x)
+
+    return Model(inputs=inputs, outputs=x)
 
 
 class AutoEncoder(Model):
@@ -69,29 +68,8 @@ class AutoEncoder(Model):
     def __init__(self, input_shape):
         """Initialise the model with encoder and decoder layers."""
         super(AutoEncoder, self).__init__()
-        self.encoder = Encoder(input_shape)
-
-        self.decoder = models.Sequential(
-            [
-                layers.Dense(1024, activation="LeakyReLU"),
-                layers.Dropout(0.5),
-                layers.Reshape((8, 8, 16)),
-                layers.Conv2DTranspose(64, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.UpSampling2D((2, 2)),
-                layers.Conv2DTranspose(32, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.UpSampling2D((2, 2)),
-                layers.Conv2DTranspose(16, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.Conv2DTranspose(8, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.Conv2DTranspose(4, (3, 3), activation="relu", padding="same"),
-                layers.BatchNormalization(),
-                layers.UpSampling2D((2, 2)),
-                layers.Conv2DTranspose(3, (3, 3), activation="sigmoid", padding="same"),
-            ]
-        )
+        self.encoder = encoder(input_shape, 1024)
+        self.decoder = decoder(1024)
 
     def call(self, x):
         """Forward pass of the model."""

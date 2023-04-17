@@ -45,7 +45,7 @@ def main():
     image_matrix = image_dataset.images_as_matrix(augment=True)
     logger.info(f"X shape: {image_matrix.shape}")
 
-    early_stopping = EarlyStopping(monitor="val_loss", patience=15, verbose=1)
+    early_stopping = EarlyStopping(monitor="val_loss", patience=10, verbose=1)
 
     model, training_history = model_factory.create_and_train_model(
         config["target_shape"],
