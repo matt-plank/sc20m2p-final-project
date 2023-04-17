@@ -2,10 +2,11 @@ import logging
 from pathlib import Path
 from typing import Dict
 
+from keras.callbacks import EarlyStopping
+
 import transferEngine.plotting as plotting
 from transferEngine.config import config_from_cli_or_yaml
 from transferEngine.images import image_dataset_factory, image_factory
-from transferEngine.images.image_dataset import ImageDataset
 from transferEngine.models import model_factory
 
 
@@ -22,11 +23,11 @@ def main():
     logger = logging.getLogger("Main")
 
     # Get configuration
+    logger.info("Loading configuration...")
     config: Dict = config_from_cli_or_yaml()
 
     # Check if the dataset already exists
     dataset_path = Path(config["dataset_save_path"])
-    image_dataset: ImageDataset
     if dataset_path.exists():
         logger.info("Dataset already exists, loading...")
         image_dataset = image_dataset_factory.dataset_from_pickle(config["dataset_save_path"])
@@ -43,12 +44,16 @@ def main():
     logger.info("Training model...")
     image_matrix = image_dataset.images_as_matrix(augment=True)
     logger.info(f"X shape: {image_matrix.shape}")
+
+    early_stopping = EarlyStopping(monitor="val_loss", patience=15, verbose=1)
+
     model, training_history = model_factory.create_and_train_model(
         config["target_shape"],
         image_matrix,
         config["split"],
         epochs=config["epochs"],
         batch_size=config["batch_size"],
+        callbacks=[early_stopping],
     )
 
     # Demonstrate on some example images
