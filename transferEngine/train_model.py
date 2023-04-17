@@ -41,9 +41,11 @@ def main():
 
     # Train the model
     logger.info("Training model...")
+    image_matrix = image_dataset.images_as_matrix(augment=True)
+    logger.info(f"X shape: {image_matrix.shape}")
     model, training_history = model_factory.create_and_train_model(
         config["target_shape"],
-        image_dataset.images_as_matrix(),
+        image_matrix,
         config["split"],
         epochs=config["epochs"],
         batch_size=config["batch_size"],
