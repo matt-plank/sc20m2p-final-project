@@ -12,7 +12,7 @@ from keras.models import load_model
 from .model import AutoEncoder
 
 
-def create_and_train_model(input_shape: Tuple[int, int, int], image_matrix: np.ndarray, split: float, epochs: int, batch_size: int, **kwargs) -> Tuple[AutoEncoder, Dict]:
+def create_and_train_model(input_shape: Tuple[int, int, int], image_matrix: np.ndarray, optimizer="adam", loss="MAE", **kwargs) -> Tuple[AutoEncoder, Dict]:
     """Train a new model and return it.
 
     Args:
@@ -22,14 +22,11 @@ def create_and_train_model(input_shape: Tuple[int, int, int], image_matrix: np.n
         batch_size: The batch size to use when training the model.
     """
     model: AutoEncoder = AutoEncoder(input_shape)
-    model.compile(optimizer="adam", loss="MAE", metrics=["accuracy"])
+    model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
 
     history = model.fit(
         image_matrix,
         image_matrix,
-        validation_split=split,
-        epochs=epochs,
-        batch_size=batch_size,
         **kwargs,
     )
 

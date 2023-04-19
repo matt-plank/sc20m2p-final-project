@@ -2,7 +2,8 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.optimizers import Adam
 
 import transferEngine.plotting as plotting
 from transferEngine.config import config_from_cli_or_yaml
@@ -45,15 +46,30 @@ def main():
     image_matrix = image_dataset.images_as_matrix(augment=True)
     logger.info(f"X shape: {image_matrix.shape}")
 
-    early_stopping = EarlyStopping(monitor="val_loss", patience=10, verbose=1)
+    early_stopping = EarlyStopping(
+        monitor="val_loss",
+        patience=15,
+        verbose=1,
+    )
+
+    reduce_ldr_on_plateau = ReduceLROnPlateau(
+        monitor="val_loss",
+        factor=0.1,
+        patience=5,
+        verbose=1,
+        min_lr=5e-7,  # type: ignore - I don't know why VS Code thinks min_lr should be an int - it isn't specified
+    )
+
+    optimizer = Adam(learning_rate=0.001)
 
     model, training_history = model_factory.create_and_train_model(
         config["target_shape"],
         image_matrix,
-        config["split"],
+        optimizer=optimizer,
+        validation_split=config["split"],
         epochs=config["epochs"],
         batch_size=config["batch_size"],
-        callbacks=[early_stopping],
+        callbacks=[reduce_ldr_on_plateau, early_stopping],
     )
 
     # Demonstrate on some example images
