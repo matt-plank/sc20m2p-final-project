@@ -25,7 +25,7 @@ def image_from_path(image_path: str, target_size: Tuple[int, int], expand: bool 
     img: PIL.Image = load_img(image_path)  # type: ignore - VS Code doesn't seem to think PIL.Image is a thing
     img_as_array: np.ndarray = img_to_array(img)
     resized: tf.Tensor = tf.image.resize(img_as_array, target_size)
-    resized_as_array: np.ndarray = resized.numpy()
+    resized_as_array: np.ndarray = resized.numpy()  # type: ignore - VS Code doesn know numpy() is a method
     result = resized_as_array / 255.0  # type: ignore
 
     if expand:
