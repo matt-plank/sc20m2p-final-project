@@ -1,76 +1,97 @@
 from typing import Tuple
 
 import numpy as np
-from keras import backend as K
 from keras import layers
 from keras.models import Model
 
 
-def encoder(input_shape: Tuple[int, int, int], bottleneck_size: int) -> Model:
+class ResidualBlock(layers.Layer):
+    """A residual block with two convolutional layers."""
+
+    def __init__(self, filters: int, kernel_size: Tuple[int, int], activation: str):
+        """Initialise the residual block with layers."""
+        super(ResidualBlock, self).__init__()
+        self.conv1 = layers.Conv2D(filters, kernel_size, activation=activation, padding="same")
+        self.bn1 = layers.BatchNormalization()
+        self.conv2 = layers.Conv2D(filters, kernel_size, activation=activation, padding="same")
+        self.bn2 = layers.BatchNormalization()
+        self.conv3 = layers.Conv2D(filters, kernel_size, activation=activation, padding="same")
+        self.bn3 = layers.BatchNormalization()
+
+    def call(self, x):
+        """Run the layer."""
+        x = self.conv1(x)
+        x = self.bn1(x)
+        y = self.conv2(x)
+        y = self.bn2(y)
+        y = self.conv3(y)
+        y = self.bn3(y)
+        return layers.Add()([x, y])
+
+
+class TransposeResidualBlock(layers.Layer):
+    """A residual block with two transposed convolutional layers."""
+
+    def __init__(self, filters: int, kernel_size: Tuple[int, int], activation: str):
+        """Initialise the residual block with layers."""
+        super(TransposeResidualBlock, self).__init__()
+        self.conv1 = layers.Conv2DTranspose(filters, kernel_size, activation=activation, padding="same")
+        self.bn1 = layers.BatchNormalization()
+        self.conv2 = layers.Conv2DTranspose(filters, kernel_size, activation=activation, padding="same")
+        self.bn2 = layers.BatchNormalization()
+        self.conv3 = layers.Conv2DTranspose(filters, kernel_size, activation=activation, padding="same")
+        self.bn3 = layers.BatchNormalization()
+
+    def call(self, x):
+        """Run the layer."""
+        x = self.conv1(x)
+        x = self.bn1(x)
+        y = self.conv2(x)
+        y = self.bn2(y)
+        y = self.conv3(y)
+        y = self.bn3(y)
+        return layers.Add()([x, y])
+
+
+def encoder(input_shape: Tuple[int, int, int]) -> Model:
     """Create a model for encoding images as a vector of size "bottleneck_size"."""
     inputs = layers.Input(shape=input_shape)
 
     # Main body of the processing
-    x = layers.Conv2D(16, (5, 5), activation="LeakyReLU", padding="same")(inputs)
-    x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D((2, 2), padding="same")(x)
-    x = layers.Conv2D(32, (5, 5), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D((2, 2), padding="same")(x)
-    x = layers.Conv2D(64, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D((2, 2), padding="same")(x)
-    x = layers.Conv2D(128, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D((2, 2), padding="same")(x)
-    x = layers.Flatten()(x)
-    x = layers.Dense(1024, activation="LeakyReLU")(x)
-    x = layers.Dropout(0.5)(x)
+    x = ResidualBlock(64, (3, 3), "relu")(inputs)
+    x = layers.MaxPooling2D((2, 2))(x)
 
-    # Skip connection
-    skip = layers.Flatten()(inputs)
+    x = ResidualBlock(128, (3, 3), "relu")(x)
+    x = layers.MaxPooling2D((2, 2))(x)
 
-    # Combine the main body and the skip connection
-    x = layers.concatenate([x, skip])
-    x = layers.Dense(bottleneck_size, activation="LeakyReLU")(x)
+    x = ResidualBlock(192, (3, 3), "relu")(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+
+    x = ResidualBlock(12, (3, 3), "relu")(x)
 
     return Model(inputs=inputs, outputs=x)
 
 
-def decoder(bottleneck_size: int) -> Model:
+def decoder(output_shape: Tuple[int, int, int]) -> Model:
     """Create a model for decoding the bottleneck layer into an image."""
-    inputs = layers.Input(shape=(bottleneck_size,))
+    inputs = layers.Input(shape=(8, 8, 12))
 
     # Main body of the processing
-    x = layers.Dense(1024, activation="LeakyReLU")(inputs)
-    x = layers.Dropout(0.5)(x)
-    x = layers.Reshape((8, 8, 16))(x)
-    x = layers.Conv2DTranspose(1024, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
+    x = TransposeResidualBlock(96, (3, 3), "relu")(inputs)
     x = layers.UpSampling2D((2, 2))(x)
-    x = layers.Conv2DTranspose(512, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
+
+    x = TransposeResidualBlock(192, (3, 3), "relu")(x)
     x = layers.UpSampling2D((2, 2))(x)
-    x = layers.Conv2DTranspose(256, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Conv2DTranspose(128, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Conv2DTranspose(64, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.BatchNormalization()(x)
+
+    x = TransposeResidualBlock(128, (3, 3), "relu")(x)
     x = layers.UpSampling2D((2, 2))(x)
-    x = layers.Conv2DTranspose(3, (3, 3), activation="LeakyReLU", padding="same")(x)
-    x = layers.Flatten()(x)
 
-    # Skip connection - works really well for including some detail in the image - can be grainy
-    skip = layers.Dense(1024, activation="LeakyReLU")(inputs)
-    skip = layers.Dense(512, activation="LeakyReLU")(skip)
+    x = TransposeResidualBlock(64, (3, 3), "relu")(x)
+    x = TransposeResidualBlock(32, (3, 3), "relu")(x)
 
-    # Finish processing
-    x = layers.Concatenate()([x, skip])
-    x = layers.Dense(64 * 64 * 3, activation="sigmoid")(x)
-    x = layers.Reshape((64, 64, 3))(x)
+    result = layers.Conv2D(output_shape[-1], (3, 3), activation="sigmoid", padding="same")(x)
 
-    return Model(inputs=inputs, outputs=x)
+    return Model(inputs=inputs, outputs=result)
 
 
 class AutoEncoder(Model):
@@ -79,8 +100,8 @@ class AutoEncoder(Model):
     def __init__(self, input_shape):
         """Initialise the model with encoder and decoder layers."""
         super(AutoEncoder, self).__init__()
-        self.encoder = encoder(input_shape, 1024)
-        self.decoder = decoder(1024)
+        self.encoder = encoder(input_shape)
+        self.decoder = decoder(input_shape)
 
     def call(self, x):
         """Forward pass of the model."""
