@@ -179,7 +179,7 @@ pyrightconfig.json
 .vscode
 
 # TensorFlow Models and Datasets
-trainingImages/
+trainingImages*/
 *.h5
 *.tf
 
