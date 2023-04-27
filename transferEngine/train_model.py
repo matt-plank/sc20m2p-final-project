@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from keras.backend import clear_session
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.losses import MSE
 from keras.optimizers import Adam
@@ -10,7 +9,7 @@ from keras.optimizers import Adam
 import transferEngine.plotting as plotting
 from transferEngine.config import config_from_cli_or_yaml
 from transferEngine.images import image_dataset_factory, image_factory
-from transferEngine.models import model_factory
+from transferEngine.models import losses, model_factory
 
 
 def main():
@@ -49,17 +48,17 @@ def main():
     logger.info(f"X shape: {image_matrix.shape}")
 
     # Create the model
-    optimizer = Adam(learning_rate=0.0001)
+    optimizer = Adam(learning_rate=1e-3)
     model = model_factory.create_model(
         config["target_shape"],
         optimizer=optimizer,
-        loss=MSE,
+        loss=losses.combined_loss(0.8, 0.2, 0.0, 0.2),
     )
 
     # Train the model
     early_stopping = EarlyStopping(
         monitor="val_loss",
-        patience=15,
+        patience=12,
         verbose=1,
     )
 
@@ -68,10 +67,9 @@ def main():
         factor=0.1,
         patience=5,
         verbose=1,
-        min_lr=5e-7,  # type: ignore - I don't know why VS Code thinks min_lr should be an int - it isn't specified
+        min_lr=5e-6,  # type: ignore - I don't know why VS Code thinks min_lr should be an int - it isn't specified
     )
 
-    clear_session()
     training_history = model.fit(
         image_matrix,
         image_matrix,
@@ -86,7 +84,7 @@ def main():
     img_1 = image_factory.image_from_path("exampleImages/testImage.jpeg", config["target_shape"][:2]).wrapped_matrix
     img_2 = image_factory.image_from_path("exampleImages/testCombine.jpg", config["target_shape"][:2]).wrapped_matrix
 
-    decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, 0.5)
+    decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, config["alpha"])
 
     # Create and save plots of the results
     logger.info("Saving results...")

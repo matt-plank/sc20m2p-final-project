@@ -14,6 +14,7 @@ def validate_config(config: Dict) -> None:
         "target_shape",
         "model_path",
         "dataset_save_path",
+        "alpha",
     ]
 
     for option in required_options:
@@ -39,6 +40,7 @@ def config_from_cli_args(args) -> Dict:
         "target_shape": tuple(args.target_shape),
         "model_path": args.model_path,
         "dataset_save_path": args.dataset_save_path,
+        "alpha": args.alpha,
     }
 
 
@@ -77,6 +79,7 @@ def config_from_cli_or_yaml() -> Dict:
     parser.add_argument("--target-shape", type=int, nargs=3, required=False)
     parser.add_argument("--model-path", type=str, required=False)
     parser.add_argument("--dataset-save-path", type=str, required=False)
+    parser.add_argument("--alpha", type=float, required=False)
     args = parser.parse_args()
 
     # If a config file is provided, load it
