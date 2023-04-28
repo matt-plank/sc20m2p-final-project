@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
-def image_results_figure(img_1, img_2, decoded_1, decoded_2, combined) -> Figure:
+def image_results_figure(img_1, img_2, img_3, decoded_1, decoded_2, decoded_3, combined) -> Figure:
     """Plot the results of the model comparing the original images and the decoded images.
 
     Args:
@@ -17,7 +17,7 @@ def image_results_figure(img_1, img_2, decoded_1, decoded_2, combined) -> Figure
     # Create a 2x3 grid of plots
     fig: Figure
     axes: Any
-    fig, axes = plt.subplots(2, 3)
+    fig, axes = plt.subplots(2, 4)
 
     # Disable axes for all plots
     for ax in axes.flat:
@@ -30,6 +30,9 @@ def image_results_figure(img_1, img_2, decoded_1, decoded_2, combined) -> Figure
     axes[0, 1].imshow(img_2)
     axes[0, 1].set_title("Original Image 2")
 
+    axes[0, 2].imshow(img_3)
+    axes[0, 2].set_title("Original Image 3")
+
     # Plot the decoded images on the second row
     axes[1, 0].imshow(decoded_1)
     axes[1, 0].set_title("Decoded Image 1")
@@ -37,9 +40,12 @@ def image_results_figure(img_1, img_2, decoded_1, decoded_2, combined) -> Figure
     axes[1, 1].imshow(decoded_2)
     axes[1, 1].set_title("Decoded Image 2")
 
+    axes[1, 2].imshow(decoded_3)
+    axes[1, 2].set_title("Decoded Image 3")
+
     # Plot the combined image on the second row
-    axes[1, 2].imshow(combined)
-    axes[1, 2].set_title("Combined Image")
+    axes[1, 3].imshow(combined)
+    axes[1, 3].set_title("Combined Image")
 
     return fig
 

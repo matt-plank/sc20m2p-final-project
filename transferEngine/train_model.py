@@ -83,12 +83,14 @@ def main():
     logger.info("Demonstrating on example images...")
     img_1 = image_factory.image_from_path("exampleImages/testImage.jpeg", config["target_shape"][:2]).wrapped_matrix
     img_2 = image_factory.image_from_path("exampleImages/testCombine.jpg", config["target_shape"][:2]).wrapped_matrix
+    img_3 = image_factory.image_from_path("exampleImages/Me.jpg", config["target_shape"][:2]).wrapped_matrix
 
     decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, config["alpha"])
+    decoded_3 = model(img_3)
 
     # Create and save plots of the results
     logger.info("Saving results...")
-    plotting.image_results_figure(img_1[0], img_2[0], decoded_1[0], decoded_2[0], decoded_combined[0]).savefig(f"{config['model_path']}/results.png")
+    plotting.image_results_figure(img_1[0], img_2[0], img_3[0], decoded_1[0], decoded_2[0], decoded_3[0], decoded_combined[0]).savefig(f"{config['model_path']}/results.png")
     plotting.training_history_figure(training_history).savefig(f"{config['model_path']}/accuracy.png")
 
 
