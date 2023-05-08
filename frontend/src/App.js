@@ -7,7 +7,9 @@ function App() {
       <InputImageBox canEncode={true} />
       <InputImageBox canEncode={true} />
       <button className="btn">Combine</button>
-      <InputImageBox />
+      <div className="image-box">
+        <img src="" alt="" />
+      </div>
     </div>
   );
 }
