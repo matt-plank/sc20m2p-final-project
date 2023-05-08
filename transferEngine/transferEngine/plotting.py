@@ -31,6 +31,29 @@ def image_decode_figure(img, decoded) -> Figure:
     return fig
 
 
+def latent_space_figure(feature_maps) -> Figure:
+    """Plot a 3x4 grid of feature maps (grayscale).
+
+    Each feature map is an 8x8 grid of values.
+    """
+    # Create a 3x4 grid of plots
+    fig: Figure
+    axes: Any
+    fig, axes = plt.subplots(3, 4)
+
+    # Disable axes for all plots
+    for ax in axes.flat:
+        ax.axis("off")
+
+    # Plot each feature map
+    for i in range(3):
+        for j in range(4):
+            index = i * 3 + j
+            axes[i, j].imshow(feature_maps[index], cmap="gray")
+
+    return fig
+
+
 def image_results_figure(img_1, img_2, img_3, decoded_1, decoded_2, decoded_3, combined) -> Figure:
     """Plot the results of the model comparing the original images and the decoded images.
 
