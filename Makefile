@@ -38,6 +38,7 @@ backend.run:
 	docker run \
 		--gpus all \
 		-p 5000:5000 \
+		--volume $(shell pwd)/transferEngine/model.tf:/transferEngine/model.tf \
 		transfer-backend
 
 backend.all:
@@ -62,3 +63,13 @@ frontend.all:
 	# Build the docker image and run the frontend
 	make frontend.build
 	make frontend.run
+
+workspace:
+	# Run the example
+	make base.build
+	docker run \
+		--gpus all \
+		-it \
+		--volume $(shell pwd)/transferEngine:/transferEngine \
+		transfer-train \
+		/bin/bash
