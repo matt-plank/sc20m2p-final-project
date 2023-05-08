@@ -7,10 +7,7 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Build static files from source
-RUN npm run build
-
-EXPOSE 80
+EXPOSE 3000
 
 # Serve static files with nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

@@ -20,7 +20,7 @@ train.run:
 		--volume $(shell pwd)/transferEngine/model.tf:/transferEngine/model.tf \
 		transfer-train
 
-train:
+train.all:
 	# Build the docker image and run the training script
 	make base.build
 	make train.build
@@ -37,12 +37,28 @@ backend.run:
 	# Run the backend
 	docker run \
 		--gpus all \
-		-it \
 		-p 5000:5000 \
 		transfer-backend
 
-backend:
+backend.all:
 	# Build the docker image and run the backend
 	make base.build
 	make backend.build
 	make backend.run
+
+frontend.build:
+	# Build the docker image for the frontend
+	docker image build \
+		-t transfer-frontend \
+		frontend
+
+frontend.run:
+	# Run the frontend
+	docker run \
+		-p 3000:3000 \
+		transfer-frontend
+
+frontend.all:
+	# Build the docker image and run the frontend
+	make frontend.build
+	make frontend.run
