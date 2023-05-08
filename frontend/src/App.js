@@ -1,13 +1,13 @@
 import "./app.css";
-import ImageBox from "./components/imageBox/imageBox";
+import InputImageBox from "./components/inputImageBox/InputImageBox";
 
 function App() {
   return (
     <div className="image-wrapper">
-      <ImageBox canEncode={true} />
-      <ImageBox canEncode={true} />
+      <InputImageBox canEncode={true} />
+      <InputImageBox canEncode={true} />
       <button className="btn">Combine</button>
-      <ImageBox />
+      <InputImageBox />
     </div>
   );
 }

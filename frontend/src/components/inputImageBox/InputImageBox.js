@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import ToggleSwitch from "../toggleSwitch/ToggleSwitch";
-import "./imageBox.css";
+import "./inputImageBox.css";
 
-const ImageBox = ({ src, srcEncoded, alt, canEncode }) => {
+const InputImageBox = ({ src, srcEncoded, alt, canEncode }) => {
   const [toggled, setToggled] = useState(false);
 
   const onToggle = () => {
@@ -18,4 +18,4 @@ const ImageBox = ({ src, srcEncoded, alt, canEncode }) => {
   );
 };
 
-export default ImageBox;
+export default InputImageBox;
