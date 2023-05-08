@@ -42,7 +42,7 @@ def main():
     model = model_factory.create_model(
         config["target_shape"],
         optimizer=optimizer,
-        loss=losses.combined_loss(0.5, 0.3, 0.0, 0.1),
+        loss=losses.combined_loss(0.5, 0.3, 0.1, 0.1),
     )
 
     # Train the model
