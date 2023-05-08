@@ -17,7 +17,7 @@ def image_results_figure(img_1, img_2, img_3, decoded_1, decoded_2, decoded_3, c
     # Create a 2x3 grid of plots
     fig: Figure
     axes: Any
-    fig, axes = plt.subplots(2, 4)
+    fig, axes = plt.subplots(2, 4, figsize=(10, 5))
 
     # Disable axes for all plots
     for ax in axes.flat:

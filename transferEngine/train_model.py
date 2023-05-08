@@ -1,6 +1,6 @@
 import logging
-from pathlib import Path
-from typing import Dict
+from itertools import cycle
+from typing import Dict, List
 
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.losses import MSE
@@ -8,7 +8,8 @@ from keras.optimizers import Adam
 
 import transferEngine.plotting as plotting
 from transferEngine.config import config_from_cli_or_yaml
-from transferEngine.images import image_dataset_factory, image_factory
+from transferEngine.data import batch_generator
+from transferEngine.images import image_factory
 from transferEngine.models import losses, model_factory
 
 
@@ -28,24 +29,12 @@ def main():
     logger.info("Loading configuration...")
     config: Dict = config_from_cli_or_yaml()
 
-    # Check if the dataset already exists
-    dataset_path = Path(config["dataset_save_path"])
-    if dataset_path.exists():
-        logger.info("Dataset already exists, loading...")
-        image_dataset = image_dataset_factory.dataset_from_pickle(config["dataset_save_path"])
-    else:
-        logger.info("Dataset does not exist, creating...")
-        image_dataset = image_dataset_factory.dataset_from_path(
-            config["dataset_path"],
-            target_size=config["target_shape"][:2],
-            verbose=True,
-        )
-        image_dataset.save_to_pickle(config["dataset_save_path"])
-
-    # Train the model
-    logger.info("Training model...")
-    image_matrix = image_dataset.images_as_matrix(augment=True)
-    logger.info(f"X shape: {image_matrix.shape}")
+    # Create a generator for the dataset
+    dataset_path: str = config["dataset_path"]
+    image_paths: List[str] = batch_generator.images_from_dir(dataset_path)
+    training_image_paths, validation_image_paths = batch_generator.split_images(image_paths, config["split"])
+    training_dataset = cycle(batch_generator.from_paths(training_image_paths, config["batch_size"]))
+    validation_dataset = cycle(batch_generator.from_paths(validation_image_paths, config["batch_size"]))
 
     # Create the model
     optimizer = Adam(learning_rate=1e-3)
@@ -71,13 +60,17 @@ def main():
     )
 
     training_history = model.fit(
-        image_matrix,
-        image_matrix,
-        validation_split=config["split"],
+        training_dataset,
+        # validation_data=validation_dataset,
+        steps_per_epoch=len(image_paths) // config["batch_size"],
         epochs=config["epochs"],
         batch_size=config["batch_size"],
         callbacks=[reduce_ldr_on_plateau, early_stopping],
     )
+
+    # Save model in ".tf" format
+    logger.info("Saving model...")
+    model.save(config["model_path"], save_format="tf")
 
     # Demonstrate on some example images
     logger.info("Demonstrating on example images...")
