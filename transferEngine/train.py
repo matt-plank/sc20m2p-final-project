@@ -2,6 +2,7 @@ import logging
 from itertools import cycle
 from typing import Dict, List
 
+import numpy as np
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.losses import MSE
 from keras.optimizers import Adam
@@ -41,7 +42,7 @@ def main():
     model = model_factory.create_model(
         config["target_shape"],
         optimizer=optimizer,
-        loss=losses.combined_loss(0.8, 0.2, 0.0, 0.2),
+        loss=losses.combined_loss(0.5, 0.3, 0.0, 0.1),
     )
 
     # Train the model
@@ -79,7 +80,7 @@ def main():
     img_3 = image_factory.image_from_path("exampleImages/Me.jpg", config["target_shape"][:2]).wrapped_matrix
 
     decoded_1, decoded_2, decoded_combined = model.encode_and_combine(img_1, img_2, config["alpha"])
-    decoded_3 = model(img_3)
+    decoded_3: np.ndarray = model(img_3).numpy()  # type: ignore
 
     # Create and save plots of the results
     logger.info("Saving results...")

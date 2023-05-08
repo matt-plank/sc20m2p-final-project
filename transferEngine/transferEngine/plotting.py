@@ -4,6 +4,33 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
+def image_decode_figure(img, decoded) -> Figure:
+    """Plot the results of the model comparing the original image and the decoded image.
+
+    Args:
+        img: The original image.
+        decoded: The decoded image.
+    """
+    # Create a 1x2 grid of plots
+    fig: Figure
+    axes: Any
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+    # Disable axes for all plots
+    for ax in axes.flat:
+        ax.axis("off")
+
+    # Plot the original image on the first plot
+    axes[0].imshow(img)
+    axes[0].set_title("Original Image")
+
+    # Plot the decoded image on the second plot
+    axes[1].imshow(decoded)
+    axes[1].set_title("Decoded Image")
+
+    return fig
+
+
 def image_results_figure(img_1, img_2, img_3, decoded_1, decoded_2, decoded_3, combined) -> Figure:
     """Plot the results of the model comparing the original images and the decoded images.
 
