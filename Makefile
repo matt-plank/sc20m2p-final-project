@@ -26,44 +26,6 @@ train.all:
 	make train.build
 	make train.run
 
-backend.build:
-	# Build the docker image for the backend
-	docker image build \
-		-t transfer-backend \
-		-f transferEngine/Dockerfile.backend \
-		transferEngine
-
-backend.run:
-	# Run the backend
-	docker run \
-		--gpus all \
-		-p 5000:5000 \
-		--volume $(shell pwd)/transferEngine/model.tf:/transferEngine/model.tf \
-		transfer-backend
-
-backend.all:
-	# Build the docker image and run the backend
-	make base.build
-	make backend.build
-	make backend.run
-
-frontend.build:
-	# Build the docker image for the frontend
-	docker image build \
-		-t transfer-frontend \
-		frontend
-
-frontend.run:
-	# Run the frontend
-	docker run \
-		-p 3000:3000 \
-		transfer-frontend
-
-frontend.all:
-	# Build the docker image and run the frontend
-	make frontend.build
-	make frontend.run
-
 workspace:
 	# Run the example
 	make base.build

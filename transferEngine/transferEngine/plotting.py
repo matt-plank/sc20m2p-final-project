@@ -54,6 +54,32 @@ def latent_space_figure(feature_maps) -> Figure:
     return fig
 
 
+def combined_figure(img_1, img_2, combined) -> Figure:
+    """Plot the two images and the combined result."""
+    # Create a 1x3 grid of plots
+    fig: Figure
+    axes: Any
+    fig, axes = plt.subplots(1, 3, figsize=(10, 5))
+
+    # Disable axes for all plots
+    for ax in axes.flat:
+        ax.axis("off")
+
+    # Plot the first image on the first plot
+    axes[0].imshow(img_1)
+    axes[0].set_title("Image 1")
+
+    # Plot the second image on the second plot
+    axes[1].imshow(img_2)
+    axes[1].set_title("Image 2")
+
+    # Plot the combined image on the third plot
+    axes[2].imshow(combined)
+    axes[2].set_title("Combined Image")
+
+    return fig
+
+
 def image_results_figure(img_1, img_2, img_3, decoded_1, decoded_2, decoded_3, combined) -> Figure:
     """Plot the results of the model comparing the original images and the decoded images.
 
